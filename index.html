@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#6c63ff" />
+  <title>Jogo da Velha P2P</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== TELA 1: MENU INICIAL ===== -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-container">
+      <div class="logo">
+        <span class="logo-x">X</span>
+        <span class="logo-heart">&#10084;</span>
+        <span class="logo-o">O</span>
+      </div>
+      <h1 class="title">Jogo da Velha</h1>
+      <p class="subtitle">Jogue com um amigo pelo celular!</p>
+      <button id="btn-create" class="btn btn-primary">
+        <span class="btn-icon">&#127381;</span> Criar Jogo
+      </button>
+      <button id="btn-join" class="btn btn-secondary">
+        <span class="btn-icon">&#128279;</span> Entrar no Jogo
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== TELA 2A: HOST - AGUARDANDO CONEXÃO ===== -->
+  <div id="screen-host" class="screen">
+    <div class="lobby-container">
+      <button class="btn-back" id="btn-back-host">&#8592; Voltar</button>
+      <div class="lobby-emoji">&#127381;</div>
+      <h2>Você criou o jogo!</h2>
+      <p>Compartilhe o código abaixo com seu amigo:</p>
+      <div class="code-box">
+        <span id="host-id-display">...</span>
+        <button id="btn-copy" class="btn-copy" title="Copiar código">&#128203;</button>
+      </div>
+      <p id="copy-feedback" class="copy-feedback"></p>
+      <div class="status-badge waiting" id="host-status">
+        <span class="status-dot"></span> Aguardando oponente...
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TELA 2B: GUEST - DIGITAR CÓDIGO ===== -->
+  <div id="screen-join" class="screen">
+    <div class="lobby-container">
+      <button class="btn-back" id="btn-back-join">&#8592; Voltar</button>
+      <div class="lobby-emoji">&#128279;</div>
+      <h2>Entrar no Jogo</h2>
+      <p>Digite o código do seu amigo:</p>
+      <input
+        type="text"
+        id="join-id-input"
+        class="code-input"
+        placeholder="ex: abc123"
+        maxlength="12"
+        autocomplete="off"
+        autocapitalize="none"
+      />
+      <button id="btn-connect" class="btn btn-primary">Conectar!</button>
+      <div class="status-badge" id="guest-status" style="display:none;">
+        <span class="status-dot"></span> <span id="guest-status-text">Conectando...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TELA 3: JOGO ===== -->
+  <div id="screen-game" class="screen">
+    <div class="game-container">
+
+      <!-- Status de conexão -->
+      <div id="connection-banner" class="connection-banner hidden">
+        <span class="status-dot disconnected"></span>
+        <span id="connection-banner-text">Conexão perdida. Tentando reconectar...</span>
+      </div>
+
+      <!-- Cabeçalho do jogo -->
+      <div class="game-header">
+        <div class="player-info" id="player-local">
+          <span class="player-symbol" id="local-symbol">X</span>
+          <span class="player-label">Você</span>
+        </div>
+        <div class="score-board">
+          <span id="score-local">0</span>
+          <span class="score-sep">:</span>
+          <span id="score-remote">0</span>
+        </div>
+        <div class="player-info" id="player-remote">
+          <span class="player-symbol" id="remote-symbol">O</span>
+          <span class="player-label">Oponente</span>
+        </div>
+      </div>
+
+      <!-- Status do turno -->
+      <div id="turn-status" class="turn-status">Conectado! Sua vez &#127881;</div>
+
+      <!-- Tabuleiro -->
+      <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+
+      <!-- Botão jogar novamente (oculto até fim de jogo) -->
+      <button id="btn-restart" class="btn btn-restart hidden">
+        &#127881; Jogar Novamente!
+      </button>
+
+      <!-- Botão sair -->
+      <button id="btn-quit" class="btn btn-quit">Sair do Jogo</button>
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY DE RESULTADO ===== -->
+  <div id="result-overlay" class="result-overlay hidden">
+    <div class="result-card">
+      <div class="result-emoji" id="result-emoji">&#127881;</div>
+      <div class="result-message" id="result-message">Você venceu!</div>
+      <button id="btn-restart-overlay" class="btn btn-primary">Jogar Novamente!</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
