@@ -29,6 +29,10 @@
    - Criar um efeito visual de destaque (como um brilho ou animação pulsante) na linha/coluna vencedora e uma mensagem clara de quem ganhou.
 4. **Feedback de Conexão (Nova Instrução):** Mostrar claramente na tela os status: "Aguardando oponente...", "Conectado! Sua vez" ou "Conexão perdida. Tentando reconectar...".
 
+## Instruções de Comportamento do Assistente
+
+- **Sempre fornecer o link do PR ao finalizar uma resposta** que envolva commits e push. O link deve ser apresentado de forma destacada ao final da resposta, no formato: `PR: <url>`.
+
 ## Entregáveis Esperados
 
 Por favor, forneça o código completo e estruturado nos seguintes blocos:

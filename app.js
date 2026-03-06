@@ -304,7 +304,6 @@ function setupConnection(conn) {
 }
 
 function onConnectionLost() {
-  if (state.gameOver) return; // jogo já acabou, ignora
   setConnectionBanner(true, 'Conexão perdida. Tentando reconectar...');
 
   // Host aguarda o guest reconectar (o peer permanece ativo)
@@ -326,7 +325,12 @@ function tryGuestReconnect() {
 // ─── Inicialização do PeerJS ──────────────────────────
 
 function initPeer(customId = null) {
-  const config = {
+  // Destrói peer anterior se ainda existir
+  if (state.peer && !state.peer.destroyed) {
+    state.peer.destroy();
+  }
+
+  const options = {
     debug: 0,
     config: {
       iceServers: [
@@ -336,9 +340,8 @@ function initPeer(customId = null) {
     }
   };
 
-  if (customId) config.id = customId;
-
-  const peer = new Peer(config);
+  // CORREÇÃO CRÍTICA: ID deve ser o 1º argumento, não uma propriedade de options
+  const peer = customId ? new Peer(customId, options) : new Peer(options);
   state.peer = peer;
 
   peer.on('error', err => {
@@ -404,6 +407,7 @@ function connectToHost() {
   ui.guestStatusText.textContent = 'Conectando...';
   ui.btnConnect.disabled = true;
 
+  // initPeer já destrói peer anterior se existir
   const peer = initPeer();
 
   peer.on('open', () => {
