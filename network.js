@@ -12,7 +12,7 @@ const Network = (() => {
     peer:        null,
     conn:        null,
     isHost:      false,
-    currentGame: null,   // 'tictactoe' | 'chess' | null
+    currentGame: null,   // 'tictactoe' | 'chess' | 'lig4' | 'memory' | null
     reconnTimer: null,
   };
 
@@ -30,11 +30,14 @@ const Network = (() => {
   function showScreen(name) {
     Object.values(_screens).forEach(s => s.classList.remove('active'));
     if (_screens[name]) _screens[name].classList.add('active');
-    _s.currentGame = (name === 'tictactoe' || name === 'chess') ? name : null;
+    _s.currentGame = ['tictactoe','chess','lig4','memory'].includes(name) ? name : null;
   }
 
   // ── Banners de conexão ─────────────────────────────────────────────
-  const _bannerIds = ['lobby-conn-banner', 'ttt-conn-banner', 'chess-conn-banner'];
+  const _bannerIds = [
+    'lobby-conn-banner', 'ttt-conn-banner', 'chess-conn-banner',
+    'lig4-conn-banner', 'memory-conn-banner',
+  ];
 
   function showConnectionBanner(show) {
     _bannerIds.forEach(id => {
@@ -51,10 +54,19 @@ const Network = (() => {
     overlay.classList.remove('hidden');
 
     const _rebind = (id, cb) => {
-      const old = document.getElementById(id);
+      const old   = document.getElementById(id);
       const fresh = old.cloneNode(true);
       old.replaceWith(fresh);
-      fresh.addEventListener('click', () => { overlay.classList.add('hidden'); cb && cb(); });
+      if (cb) {
+        fresh.disabled = false;
+        fresh.style.opacity = '1';
+        fresh.addEventListener('click', () => { overlay.classList.add('hidden'); cb(); });
+      } else {
+        // Guest no Memória: aguarda o host reiniciar
+        fresh.disabled = true;
+        fresh.style.opacity = '0.5';
+        fresh.textContent = '⏳ Aguardando Host...';
+      }
     };
     _rebind('btn-result-play-again', onPlayAgain);
     _rebind('btn-result-lobby',      onLobby);
@@ -77,7 +89,7 @@ const Network = (() => {
     switch (data.type) {
 
       case 'START_GAME':
-        _onStartGame(data.game);
+        _onStartGame(data);
         break;
 
       case 'RETURN_LOBBY':
@@ -85,11 +97,7 @@ const Network = (() => {
         break;
 
       case 'sync_request':
-        if (_s.isHost) {
-          if      (_s.currentGame === 'tictactoe') TicTacToe.syncState();
-          else if (_s.currentGame === 'chess')     ChessGame.syncState();
-          else send({ type: 'sync_lobby' });
-        }
+        if (_s.isHost) _handleSyncRequest();
         break;
 
       case 'sync_lobby':
@@ -97,9 +105,19 @@ const Network = (() => {
         break;
 
       default:
-        if      (data.type.startsWith('ttt_'))   TicTacToe.handleMessage(data);
-        else if (data.type.startsWith('chess_')) ChessGame.handleMessage(data);
+        if      (data.type.startsWith('ttt_'))    TicTacToe.handleMessage(data);
+        else if (data.type.startsWith('chess_'))  ChessGame.handleMessage(data);
+        else if (data.type.startsWith('lig4_'))   Lig4.handleMessage(data);
+        else if (data.type.startsWith('memory_')) MemoryGame.handleMessage(data);
     }
+  }
+
+  function _handleSyncRequest() {
+    if      (_s.currentGame === 'tictactoe') TicTacToe.syncState();
+    else if (_s.currentGame === 'chess')     ChessGame.syncState();
+    else if (_s.currentGame === 'lig4')      Lig4.syncState();
+    else if (_s.currentGame === 'memory')    MemoryGame.syncState();
+    else send({ type: 'sync_lobby' });
   }
 
   // ── Lobby conectado ────────────────────────────────────────────────
@@ -119,9 +137,13 @@ const Network = (() => {
     });
   }
 
-  function _onStartGame(game) {
-    if      (game === 'tictactoe') TicTacToe.init(_s.isHost);
-    else if (game === 'chess')     ChessGame.init(_s.isHost);
+  function _onStartGame(data) {
+    switch (data.game) {
+      case 'tictactoe': TicTacToe.init(_s.isHost); break;
+      case 'chess':     ChessGame.init(_s.isHost); break;
+      case 'lig4':      Lig4.init(_s.isHost); break;
+      case 'memory':    MemoryGame.init(_s.isHost, data.themeKey, data.board); break;
+    }
   }
 
   function _returnToLobbyLocal() {
@@ -132,6 +154,23 @@ const Network = (() => {
   function returnToLobby() {
     send({ type: 'RETURN_LOBBY' });
     _returnToLobbyLocal();
+  }
+
+  // ── Modal de tema (Jogo da Memória) ───────────────────────────────
+  function _showThemeModal() {
+    const sel = document.getElementById('theme-select');
+    sel.innerHTML = '';
+    Object.entries(THEMES).forEach(([key, theme]) => {
+      const opt       = document.createElement('option');
+      opt.value       = key;
+      opt.textContent = theme.label;
+      sel.appendChild(opt);
+    });
+    document.getElementById('modal-theme').classList.remove('hidden');
+  }
+
+  function _hideThemeModal() {
+    document.getElementById('modal-theme').classList.add('hidden');
   }
 
   // ── Eventos de conexão ─────────────────────────────────────────────
@@ -278,6 +317,7 @@ const Network = (() => {
     document.getElementById('join-id-input').value    = '';
     document.getElementById('btn-connect').disabled   = false;
     document.getElementById('guest-status').style.display = 'none';
+    _hideThemeModal();
     showConnectionBanner(false);
     hideResult();
     showScreen('menu');
@@ -285,11 +325,11 @@ const Network = (() => {
 
   // ── Bootstrap ─────────────────────────────────────────────────────
   function init() {
-    ['menu','host','join','lobby','tictactoe','chess'].forEach(n => {
+    ['menu','host','join','lobby','tictactoe','chess','lig4','memory'].forEach(n => {
       _screens[n] = document.getElementById('screen-' + n);
     });
 
-    // Botões de navegação
+    // Navegação
     document.getElementById('btn-create').addEventListener('click', _startHost);
     document.getElementById('btn-join').addEventListener('click',   _startGuest);
     document.getElementById('btn-back-host').addEventListener('click', goToMenu);
@@ -297,20 +337,36 @@ const Network = (() => {
     document.getElementById('btn-copy').addEventListener('click',    _copyHostId);
     document.getElementById('btn-connect').addEventListener('click', _connectToHost);
     document.getElementById('btn-disconnect').addEventListener('click', goToMenu);
-
     document.getElementById('join-id-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') _connectToHost();
     });
 
-    // Cards de seleção de jogo (apenas host pode clicar)
+    // Cards de jogo
     document.querySelectorAll('.game-card').forEach(card => {
       card.addEventListener('click', () => {
         if (!_s.isHost || card.disabled) return;
         const game = card.dataset.game;
-        send({ type: 'START_GAME', game });
-        _onStartGame(game);
+
+        if (game === 'memory') {
+          // Mostra modal de seleção de tema antes de iniciar
+          _showThemeModal();
+        } else {
+          send({ type: 'START_GAME', game });
+          _onStartGame({ game });
+        }
       });
     });
+
+    // Modal de tema
+    document.getElementById('btn-start-memory').addEventListener('click', () => {
+      const themeKey = document.getElementById('theme-select').value;
+      const board    = shuffleBoard(THEMES[themeKey].pairs);
+      send({ type: 'START_GAME', game: 'memory', themeKey, board });
+      _onStartGame({ game: 'memory', themeKey, board });
+      _hideThemeModal();
+    });
+
+    document.getElementById('btn-cancel-theme').addEventListener('click', _hideThemeModal);
   }
 
   document.addEventListener('DOMContentLoaded', init);

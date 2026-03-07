@@ -96,9 +96,31 @@
           <div class="game-card-name">Xadrez</div>
           <div class="game-card-desc">Estratégia · 2 jogadores</div>
         </button>
+        <button class="game-card" id="card-lig4" data-game="lig4">
+          <div class="game-card-icon">🔴🟡</div>
+          <div class="game-card-name">Lig 4</div>
+          <div class="game-card-desc">Connect 4 · 2 jogadores</div>
+        </button>
+        <button class="game-card" id="card-memory" data-game="memory">
+          <div class="game-card-icon">🃏🎴</div>
+          <div class="game-card-name">Memória</div>
+          <div class="game-card-desc">Pares · 2 jogadores</div>
+        </button>
       </div>
 
       <button id="btn-disconnect" class="btn btn-quit">Desconectar</button>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: SELEÇÃO DE TEMA (Memória) ===== -->
+  <div id="modal-theme" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-emoji">🃏</div>
+      <h3>Jogo da Memória</h3>
+      <p>Escolha o tema das cartas:</p>
+      <select id="theme-select" class="theme-select"></select>
+      <button id="btn-start-memory" class="btn btn-primary">🎮 Iniciar!</button>
+      <button id="btn-cancel-theme" class="btn btn-quit">Cancelar</button>
     </div>
   </div>
 
@@ -180,6 +202,70 @@
     </div>
   </div>
 
+  <!-- ===== TELA 6: LIG 4 ===== -->
+  <div id="screen-lig4" class="screen">
+    <div class="game-container">
+
+      <div id="lig4-conn-banner" class="connection-banner hidden">
+        <span class="status-dot disconnected"></span>
+        <span>Conexão perdida. Tentando reconectar...</span>
+      </div>
+
+      <div class="game-header">
+        <div class="player-info" id="lig4-player-local">
+          <span class="player-symbol" id="lig4-local-symbol" style="font-size:1rem;">🔴 Vermelho</span>
+          <span class="player-label">Você</span>
+        </div>
+        <div class="score-board">
+          <span id="lig4-score-local">0</span>
+          <span class="score-sep">:</span>
+          <span id="lig4-score-remote">0</span>
+        </div>
+        <div class="player-info" id="lig4-player-remote">
+          <span class="player-symbol" id="lig4-remote-symbol" style="font-size:1rem;">🟡 Amarelo</span>
+          <span class="player-label">Oponente</span>
+        </div>
+      </div>
+
+      <div id="lig4-turn-status" class="turn-status"></div>
+
+      <!-- Tabuleiro gerado por JS -->
+      <div id="lig4-board" class="lig4-board"></div>
+
+      <button id="lig4-btn-lobby" class="btn btn-quit">&#8592; Voltar ao Lobby</button>
+    </div>
+  </div>
+
+  <!-- ===== TELA 7: JOGO DA MEMÓRIA ===== -->
+  <div id="screen-memory" class="screen">
+    <div class="memory-container">
+
+      <div id="memory-conn-banner" class="connection-banner hidden">
+        <span class="status-dot disconnected"></span>
+        <span>Conexão perdida. Tentando reconectar...</span>
+      </div>
+
+      <div class="memory-header">
+        <div class="memory-player" id="memory-player-local">
+          <div class="memory-score" id="memory-score-local">0</div>
+          <div class="memory-label">Você</div>
+        </div>
+        <div id="memory-turn-status" class="turn-status" style="flex:1;text-align:center;font-size:clamp(0.85rem,3.5vw,1rem);">
+          Sua vez! 🃏
+        </div>
+        <div class="memory-player" id="memory-player-remote">
+          <div class="memory-score" id="memory-score-remote">0</div>
+          <div class="memory-label">Oponente</div>
+        </div>
+      </div>
+
+      <!-- Grid gerado por JS -->
+      <div id="memory-grid" class="memory-grid"></div>
+
+      <button id="memory-btn-lobby" class="btn btn-quit">&#8592; Voltar ao Lobby</button>
+    </div>
+  </div>
+
   <!-- ===== OVERLAY DE RESULTADO ===== -->
   <div id="result-overlay" class="result-overlay hidden">
     <div class="result-card">
@@ -195,9 +281,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
   <!-- Módulos da aplicação -->
+  <script src="themes.js"></script>
   <script src="network.js"></script>
   <script src="tictactoe.js"></script>
   <script src="chess.js"></script>
+  <script src="lig4.js"></script>
+  <script src="memory.js"></script>
 
 </body>
 </html>
