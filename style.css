@@ -9,20 +9,23 @@
 }
 
 :root {
-  --purple:     #6c63ff;
-  --purple-dark:#4b44cc;
-  --pink:       #ff6584;
-  --yellow:     #ffd166;
-  --green:      #06d6a0;
-  --blue:       #118ab2;
-  --bg:         #f0f0ff;
-  --white:      #ffffff;
-  --text:       #2d2d3a;
-  --text-light: #7a7a9d;
-  --shadow:     0 8px 24px rgba(108,99,255,0.18);
-  --radius:     20px;
-  --cell-size:  min(28vw, 110px);
-  --font:       'Segoe UI', 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  --purple:      #6c63ff;
+  --purple-dark: #4b44cc;
+  --pink:        #ff6584;
+  --yellow:      #ffd166;
+  --green:       #06d6a0;
+  --blue:        #118ab2;
+  --bg:          #f0f0ff;
+  --white:       #ffffff;
+  --text:        #2d2d3a;
+  --text-light:  #7a7a9d;
+  --shadow:      0 8px 24px rgba(108,99,255,0.18);
+  --radius:      20px;
+  --cell-size:   min(28vw, 110px);
+  --chess-sq:    min(calc((100vw - 32px) / 8), 56px);
+  --chess-light: #ffe9c8;
+  --chess-dark:  #c07840;
+  --font:        'Segoe UI', 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
 }
 
 html, body {
@@ -57,7 +60,7 @@ html, body {
 }
 
 /* =========================================
-   MENU
+   MENU INICIAL
    ========================================= */
 .menu-container {
   display: flex;
@@ -69,18 +72,11 @@ html, body {
   max-width: 380px;
 }
 
-.logo {
-  font-size: clamp(2.5rem, 12vw, 4rem);
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.hub-logo {
+  font-size: clamp(3rem, 15vw, 5rem);
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  line-height: 1;
 }
-
-.logo-x     { color: var(--purple); }
-.logo-heart { color: var(--pink);   font-size: 0.7em; }
-.logo-o     { color: var(--yellow); }
 
 .title {
   font-size: clamp(1.6rem, 7vw, 2.2rem);
@@ -97,7 +93,7 @@ html, body {
 }
 
 /* =========================================
-   BUTTONS
+   BOTÕES
    ========================================= */
 .btn {
   display: flex;
@@ -212,7 +208,7 @@ html, body {
   text-align: center;
 }
 
-/* Caixa do código */
+/* Caixa de código */
 .code-box {
   display: flex;
   align-items: center;
@@ -301,12 +297,12 @@ html, body {
   border-radius: 50%;
   background: var(--purple);
   display: inline-block;
+  flex-shrink: 0;
   animation: pulse 1.5s infinite;
 }
 
-.status-dot.disconnected {
-  background: var(--pink);
-}
+.status-dot.disconnected { background: var(--pink); }
+.status-dot.connected    { background: var(--green); }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -314,7 +310,93 @@ html, body {
 }
 
 /* =========================================
-   GAME SCREEN
+   LOBBY CONECTADO — SELEÇÃO DE JOGO
+   ========================================= */
+.game-select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.connected-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 50px;
+  background: rgba(6,214,160,0.12);
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.select-title {
+  font-size: clamp(1.4rem, 6vw, 1.8rem);
+  font-weight: 900;
+  color: var(--purple);
+  text-align: center;
+}
+
+.select-hint {
+  font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+  color: var(--text-light);
+  text-align: center;
+  min-height: 1.4em;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  background: var(--white);
+  border: 3px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  touch-action: manipulation;
+  box-shadow: var(--shadow);
+}
+
+.game-card:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(108,99,255,0.25);
+  border-color: var(--purple);
+}
+
+.game-card:not(:disabled):active { transform: scale(0.95); }
+
+.game-card-icon {
+  font-size: clamp(2rem, 10vw, 2.8rem);
+  line-height: 1;
+}
+
+.game-card-name {
+  font-size: clamp(0.9rem, 4vw, 1.05rem);
+  font-weight: 900;
+  color: var(--text);
+}
+
+.game-card-desc {
+  font-size: clamp(0.7rem, 3vw, 0.8rem);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+/* =========================================
+   TELA DO JOGO (TicTacToe)
    ========================================= */
 .game-container {
   display: flex;
@@ -339,12 +421,9 @@ html, body {
   font-size: 0.9rem;
   padding: 10px 16px;
   border-radius: 12px;
-  transition: opacity 0.3s ease;
 }
 
-.connection-banner.hidden {
-  display: none;
-}
+.connection-banner.hidden { display: none; }
 
 /* Cabeçalho do jogo */
 .game-header {
@@ -379,9 +458,6 @@ html, body {
   line-height: 1;
 }
 
-#player-local  .player-symbol { color: var(--purple); }
-#player-remote .player-symbol { color: var(--pink);   }
-
 .player-label {
   font-size: 0.75rem;
   font-weight: 700;
@@ -413,7 +489,7 @@ html, body {
 }
 
 /* =========================================
-   BOARD
+   TABULEIRO (TicTacToe)
    ========================================= */
 .board {
   display: grid;
@@ -424,7 +500,6 @@ html, body {
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  position: relative;
 }
 
 .cell {
@@ -446,7 +521,6 @@ html, body {
     box-shadow   0.2s ease;
   user-select: none;
   touch-action: manipulation;
-  position: relative;
   overflow: hidden;
 }
 
@@ -456,11 +530,8 @@ html, body {
   transform: scale(1.04);
 }
 
-.cell:active:not(.taken) {
-  transform: scale(0.93);
-}
+.cell:active:not(.taken) { transform: scale(0.93); }
 
-/* Marcação X */
 .cell.x {
   color: var(--purple);
   border-color: rgba(108,99,255,0.3);
@@ -468,7 +539,6 @@ html, body {
   animation: pop-in 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Marcação O */
 .cell.o {
   color: var(--pink);
   border-color: rgba(255,101,132,0.3);
@@ -478,7 +548,6 @@ html, body {
 
 .cell.taken { cursor: not-allowed; }
 
-/* Célula vencedora */
 .cell.winner {
   background: var(--yellow) !important;
   border-color: var(--yellow) !important;
@@ -498,7 +567,130 @@ html, body {
 }
 
 /* =========================================
-   RESULT OVERLAY
+   TELA DE XADREZ
+   ========================================= */
+.chess-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 16px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.chess-turn {
+  font-size: clamp(0.9rem, 4vw, 1.05rem);
+  padding: 2px 0;
+}
+
+/* Barras de jogador */
+.chess-player-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(var(--chess-sq) * 8);
+  padding: 8px 12px;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.chess-color-dot {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.chess-bar-label {
+  flex: 1;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chess-captures {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-align: right;
+}
+
+/* Tabuleiro de xadrez */
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, var(--chess-sq));
+  grid-template-rows:    repeat(8, var(--chess-sq));
+  border: 3px solid var(--purple);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.chess-sq {
+  width:  var(--chess-sq);
+  height: var(--chess-sq);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition: filter 0.1s ease;
+}
+
+.chess-sq.light { background: var(--chess-light); }
+.chess-sq.dark  { background: var(--chess-dark); }
+
+/* Último movimento */
+.chess-sq.last-move { background: rgba(255, 214, 60, 0.55) !important; }
+
+/* Casa selecionada */
+.chess-sq.selected { background: #5bc8f0 !important; }
+
+/* Rei em xeque */
+.chess-sq.in-check { background: rgba(220, 50, 50, 0.72) !important; }
+
+/* Movimento válido — casa vazia: ponto central */
+.chess-sq.valid-move::after {
+  content: '';
+  position: absolute;
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  background: rgba(30, 160, 40, 0.5);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Movimento válido — casa com peça inimiga: anel */
+.chess-sq.valid-capture::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 3px solid rgba(30, 160, 40, 0.65);
+  background: transparent;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Peça de xadrez */
+.chess-piece {
+  font-size: calc(var(--chess-sq) * 0.72);
+  line-height: 1;
+  display: block;
+  pointer-events: none;
+  transition: transform 0.12s ease;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
+}
+
+.chess-sq:active .chess-piece { transform: scale(0.88); }
+
+/* =========================================
+   OVERLAY DE RESULTADO
    ========================================= */
 .result-overlay {
   position: fixed;
@@ -556,20 +748,21 @@ html, body {
 /* =========================================
    UTILITIES
    ========================================= */
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
 /* =========================================
-   RESPONSIVIDADE EXTRA (telas muito pequenas)
+   RESPONSIVIDADE
    ========================================= */
 @media (max-height: 640px) {
-  .game-container { gap: 8px; padding: 10px 12px 16px; }
-  .menu-container { gap: 12px; padding: 20px 16px; }
-  .logo { font-size: 2.2rem; }
-  .result-card { padding: 28px 24px; }
+  .game-container  { gap: 8px;  padding: 10px 12px 14px; }
+  .menu-container  { gap: 12px; padding: 20px 16px; }
+  .chess-container { gap: 5px;  padding: 8px 10px 12px; }
+  .result-card     { padding: 28px 24px; }
 }
 
 @media (min-width: 480px) {
-  :root { --cell-size: 120px; }
+  :root {
+    --cell-size: 120px;
+    --chess-sq:  min(calc((100vw - 48px) / 8), 64px);
+  }
 }
